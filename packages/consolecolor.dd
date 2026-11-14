@@ -1,0 +1,58 @@
+local colors = {}
+
+colors.RESET = "\27[0m"
+
+colors.BLACK   = "\27[30m"
+colors.RED     = "\27[31m"
+colors.GREEN   = "\27[32m"
+colors.YELLOW  = "\27[33m"
+colors.BLUE    = "\27[34m"
+colors.MAGENTA = "\27[35m"
+colors.CYAN    = "\27[36m"
+colors.WHITE   = "\27[37m"
+
+colors.GRAY           = "\27[90m"
+colors.BRIGHT_RED     = "\27[91m"
+colors.BRIGHT_GREEN   = "\27[92m"
+colors.BRIGHT_YELLOW  = "\27[93m"
+colors.BRIGHT_BLUE    = "\27[94m"
+colors.BRIGHT_MAGENTA = "\27[95m"
+colors.BRIGHT_CYAN    = "\27[96m"
+colors.BRIGHT_WHITE   = "\27[97m"
+
+colors.BG_BLACK   = "\27[40m"
+colors.BG_RED     = "\27[41m"
+colors.BG_GREEN   = "\27[42m"
+colors.BG_YELLOW  = "\27[43m"
+colors.BG_BLUE    = "\27[44m"
+colors.BG_MAGENTA = "\27[45m"
+colors.BG_CYAN    = "\27[46m"
+colors.BG_WHITE   = "\27[47m"
+
+colors.BG_GRAY           = "\27[100m"
+colors.BG_BRIGHT_RED     = "\27[101m"
+colors.BG_BRIGHT_GREEN   = "\27[102m"
+colors.BG_BRIGHT_YELLOW  = "\27[103m"
+colors.BG_BRIGHT_BLUE    = "\27[104m"
+colors.BG_BRIGHT_MAGENTA = "\27[105m"
+colors.BG_BRIGHT_CYAN    = "\27[106m"
+colors.BG_BRIGHT_WHITE   = "\27[107m"
+
+colors.BOLD          = "\27[1m"
+colors.DIM           = "\27[2m"
+colors.ITALIC        = "\27[3m"
+colors.UNDERLINE     = "\27[4m"
+colors.BLINK         = "\27[5m"
+colors.REVERSE       = "\27[7m"
+colors.HIDDEN        = "\27[8m"
+colors.STRIKETHROUGH = "\27[9m"
+
+colors.RESET_BOLD      = "\27[22m"
+colors.RESET_ITALIC    = "\27[23m"
+colors.RESET_UNDERLINE = "\27[24m"
+colors.RESET_BLINK     = "\27[25m"
+colors.RESET_REVERSE   = "\27[27m"
+colors.RESET_HIDDEN    = "\27[28m"
+colors.RESET_STRIKE    = "\27[29m"
+
+return colors
