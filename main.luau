@@ -318,7 +318,7 @@ end
             output = output.."function v" .. id .. "()" 
             local filepath = line.expression.arguments[1].value..".dd"
             if not luteapi_fs.exists(filepath) then
-                filepath = luteapi_process.cwd().."\\packages\\"..line.expression.arguments[1].value..".dd"
+                filepath = (luteapi_process.args[1]:match("^(.*)[/\\]") or ".").."\\packages\\"..line.expression.arguments[1].value..".dd"
             end
             if filepath == "" then
                 error("Faild to Find File: "..line.expression.arguments[1].value)
