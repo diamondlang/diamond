@@ -1,3 +1,5 @@
+_G = {}
+
 local Compiler = require("./complier")
 luteapi_luau = require("@lute/luau")
 luteapi_process = require("@lute/process")
@@ -192,7 +194,12 @@ elseif t == "MethodCallExpression" then
                     .. CompileExpression(field.key)
                     .. "]="
                     .. CompileExpression(field.value)
-
+            elseif field.type == "TableIndexField" then
+                output = output
+                    .. "["
+                    .. CompileExpression(field.key)
+                    .. "]="
+                    .. CompileExpression(field.value)
             else
                 error("Unknown table field type: " .. tostring(field.type))
             end
