@@ -5,7 +5,7 @@ randoms.randint = function(min,max) {
 }
 
 randoms.randfloat = function(min,max) {
-    return math.random(min/1e6,max/1e6)*1e6
+    return math.random(min*1e6,max*1e6)/1e6
 }
 
 randoms.randuuid = function() {
