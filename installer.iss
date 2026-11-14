@@ -3,7 +3,7 @@
 ; Non-commercial use only.
 
 #define MyAppName "Diamond"
-#define MyAppVersion "1.0.5"
+#define MyAppVersion "1.1"
 #define MyAppPublisher "MenConfig, brokiedarwin"
 #define MyAppURL "https://diamondlang.github.io"
 #define MyAppExeName "diamond.exe"
@@ -53,6 +53,7 @@ Source: "C:\Users\japekpl\Desktop\New folder (9)\New folder\{#MyAppExeName}"; De
 Source: "C:\Users\japekpl\Desktop\New folder (9)\New folder\complier.lua"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\japekpl\Desktop\New folder (9)\New folder\lute.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\japekpl\Desktop\New folder (9)\New folder\main.luau"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\japekpl\Desktop\New folder (9)\New folder\packages\*"; DestDir: "{app}\packages"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files.
 
 [Registry]
