@@ -1,0 +1,25 @@
+local randoms = {}
+
+randoms.randint = function(min,max) {
+    return math.random(min,max)
+}
+
+randoms.randfloat = function(min,max) {
+    return math.random(min/1e6,max/1e6)*1e6
+}
+
+randoms.randuuid = function() {
+    local template = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
+    local uuid = string.gsub(template, "[xy]", function(c){
+        local r = math.random(0, 15)
+
+        if c == "x" {
+            return string.format("%x", r)
+        } else {
+            return string.format("%x", bit32.bor(bit32.band(r, 3), 8))
+        }
+    })
+    return uuid
+}
+
+return randoms
