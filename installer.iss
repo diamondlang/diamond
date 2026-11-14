@@ -3,7 +3,7 @@
 ; Non-commercial use only.
 
 #define MyAppName "Diamond"
-#define MyAppVersion "1.0.2"
+#define MyAppVersion "1.0.3"
 #define MyAppPublisher "MenConfig, brokiedarwin"
 #define MyAppURL "https://diamondlang.github.io"
 #define MyAppExeName "diamond.exe"
