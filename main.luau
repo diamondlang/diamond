@@ -4,6 +4,7 @@ local Compiler = require("./complier")
 luteapi_luau = require("@lute/luau")
 luteapi_process = require("@lute/process")
 luteapi_net = require("@lute/net/client")
+luteapi_server = require("@lute/net/server")
 luteapi_fs = require("@lute/fs")
 stdapi_json = require("@std/json")
 luteapi_io = require("@lute/io")
@@ -40,7 +41,7 @@ end
 if not Config.Input then
     print("Usages:")
     print("diamond <diamond file path> ")
-    print("diamond <diamond file path> --debug > debuging the code workflow")
+    print("diamond <diamond file path> --debug > debuging the code ____workflow")
     print("diamond <diamond file path> --exporttoluau > export to luau code without runing")
     return
 end
@@ -91,6 +92,7 @@ if Config.Debug then
     DebugTable(ast)
 end
 local function CompileExpression(expr)
+    local output = ""
     if not expr then
         return "nil"
     end
@@ -155,7 +157,32 @@ local function CompileExpression(expr)
         return output .. ")"
 elseif t == "ParenthesizedExpression" then
     return "(" .. CompileExpression(expr.expression) .. ")"
+elseif t == "FunctionExpression" then
+    local output = "function("
 
+    for i, param in ipairs(expr.parameters or {}) do
+        if i > 1 then
+            output = output .. ","
+        end
+
+        output = output .. param.name
+    end
+
+    if expr.vararg then
+        if #(expr.parameters or {}) > 0 then
+            output = output .. ","
+        end
+
+        output = output .. "..."
+    end
+
+    output = output .. ")"
+
+    for _, body in ipairs(expr.body or {}) do
+        output = output .. ____workflow(body)
+    end
+
+    return output .. " end"
 elseif t == "MethodCallExpression" then
     local output = CompileExpression(expr.receiver)
         .. ":"
@@ -215,7 +242,8 @@ elseif t == "MethodCallExpression" then
     error("Unknown expression type: " .. tostring(t))
 end
 local codeoutput = "pi=math.pi;function thread(...)return spawn(...)end function tfind(...)return table.find(...)end function append(...)table.append(...)end function insert(...)table.insert(...)end function pn(...)print(...)end function wn(...)warn(...)end function fo(...)info(...)end function er(...)error(...)end function len(item)return #item end function rad(deg)return math.rad(deg)end function deg(rad)return math.deg(rad)end function cos(deg)return math.cos(math.rad(deg))end function sin(deg)return math.sin(math.rad(deg))end function readfile(filepath)local file=luteapi_fs.open(filepath,'r')local code=luteapi_fs.read(file)luteapi_fs.close(file)return code end function writefile(filepath,code)local file=luteapi_fs.open(filepath,'w')luteapi_fs.write(file,code)luteapi_fs.close(file)end function request(...)return luteapi_net.request(...)end function runcmd(...)return luteapi_process.system(...)end function json_decode(...)return stdapi_json.deserialize(...)end function json_encode(tab)return stdapi_json.serialize(tab, true)end function tostr(...)return tostring(...)end function tonum(...)return tonumber(...)end function floor(...)return math.floor(...)end function round(...)return math.round(...)end function clamp(...)return math.clamp(...)end function runtest(...)return pcall(...)end function addpn(...)luteapi_io.write(...)end function input(str)luteapi_io.write(str or '')return luteapi_io.read()end function runluau(...)return luteapi_luau.load(luteapi_luau.compile(...),'@Luau')() end function wait(mis)local start=os.clock()while os.clock()-start<(mis/1000)do end end function unixtime()return os.time()+(os.clock()%1)end\n"
-local function workflow(line) 
+function ____workflow(line) 
+    local output = ""
     local opcode = line.type
     if opcode == "VariableDeclaration" then
         local v1 = "local "
@@ -224,31 +252,31 @@ local function workflow(line)
         elseif line.declaration == "highglobal" then
             v1 = "_G."
         end
-        codeoutput = codeoutput..v1
+        output = output..v1
         for index,var in pairs(line.names) do
             if index ~= 1 then
-                codeoutput = codeoutput..","
+                output = output..","
             end
             highglobalvars[var] = line.declaration == "highglobal"
-            codeoutput = codeoutput..var
+            output = output..var
         end
-        codeoutput = codeoutput.."="
+        output = output.."="
         for index,arg in pairs(line.values) do
             if index ~= 1 then
-                codeoutput = codeoutput..","
+                output = output..","
             end
-            codeoutput = codeoutput .. CompileExpression(arg)
+            output = output .. CompileExpression(arg)
         end
-        codeoutput = codeoutput..";"
+        output = output..";"
     elseif opcode == "ReturnStatement" then
-        codeoutput = codeoutput.."return "
+        output = output.."return "
         for index,arg in pairs(line.values) do
             if index ~= 1 then
-                codeoutput = codeoutput..","
+                output = output..","
             end
-            codeoutput = codeoutput .. CompileExpression(arg)
+            output = output .. CompileExpression(arg)
         end
-        codeoutput = codeoutput..";"
+        output = output..";"
     elseif opcode == "AssignmentStatement" then
         for index, target in ipairs(line.targets) do
     local operator = line.operator or "="
@@ -273,11 +301,11 @@ local function workflow(line)
     end
 
     if operator == "=" then
-        codeoutput = codeoutput .. lhs .. "=" .. value .. ";"
+        output = output .. lhs .. "=" .. value .. ";"
     else
         local actualOperator = operator:sub(1, 1)
 
-        codeoutput = codeoutput
+        output = output
             .. lhs .. "="
             .. lhs .. actualOperator
             .. "(" .. value .. ");"
@@ -285,20 +313,32 @@ local function workflow(line)
 end
     elseif opcode == "CallStatement" then
         local callname = line.expression.callee.name or line.expression.callee.object.name 
-        codeoutput = codeoutput..callname..(line.expression.callee.property ~= nil and "."..line.expression.callee.property or "").."("
+        if callname == "import" then
+            local id = tostring(math.random(100000, 999999))
+            output = output.."function v" .. id .. "()" 
+            local file = luteapi_fs.open(line.expression.arguments[1].value,"r")
+            local importsource = luteapi_fs.read(file)
+            luteapi_fs.close(file)
+            for _, body in ipairs(Compiler.Parse(importsource)) do
+                output = output .. ____workflow(body)
+            end
+            output = output .. "end " .. "v"..id.."()"
+            return
+        end
+        output = output..callname..(line.expression.callee.property ~= nil and "."..line.expression.callee.property or "").."("
         for index,arg in pairs(line.expression.arguments) do
             if index ~= 1 then
-                codeoutput = codeoutput..","
+                output = output..","
             end
-            codeoutput = codeoutput .. CompileExpression(arg)
+            output = output .. CompileExpression(arg)
         end
-        codeoutput = codeoutput..");"
+        output = output..");"
     elseif opcode == "NumericForStatement" then
         local initial = CompileExpression(line.initial)
         local limit = CompileExpression(line.limit)
         local step = line.step and CompileExpression(line.step) or "1"
 
-        codeoutput = codeoutput
+        output = output
             .. "for " .. line.name
             .. "=" .. initial
             .. "," .. limit
@@ -306,55 +346,56 @@ end
             .. " do "
 
         for _, body in ipairs(line.body) do
-            workflow(body)
+            output = output .. ____workflow(body)
         end
 
-        codeoutput = codeoutput .. " end;"
+        output = output .. " end;"
     elseif opcode == "LocalFunctionDeclaration" or opcode == "FunctionDeclaration" then
         local islocal = opcode == "LocalFunctionDeclaration" 
-        codeoutput = codeoutput .. (islocal and "local " or "") .. "function " .. (line.name or CompileExpression(line.target)) .. "("
+        output = output .. (islocal and "local " or "") .. "function " .. (line.name or CompileExpression(line.target)) .. "("
         for index,arg in pairs(line.value.parameters) do
             if index ~= 1 then
-                codeoutput = codeoutput..","
+                output = output..","
             end
-            codeoutput = codeoutput .. arg.name
+            output = output .. arg.name
         end
-        codeoutput = codeoutput .. ")"
+        output = output .. ")"
         for _, body in ipairs(line.value.body) do
-            workflow(body)
+            output = output .. ____workflow(body)
         end
-        codeoutput = codeoutput .. " end;"
+        output = output .. " end;"
     elseif opcode == "WhileStatement" then
-        codeoutput = codeoutput .. "while " .. CompileExpression(line.condition) .. " do "
+        output = output .. "while " .. CompileExpression(line.condition) .. " do "
         for _, body in ipairs(line.body) do
-            workflow(body)
+            output = output .. ____workflow(body)
         end
-        codeoutput = codeoutput .. " end;"
+        output = output .. " end;"
     elseif opcode == "IfStatement" then
         for cul,branche in ipairs(line.branches) do
-            codeoutput = codeoutput .. (cul ~= 1 and "else" or "") .. "if " .. CompileExpression(branche.condition).." then "
+            output = output .. (cul ~= 1 and "else" or "") .. "if " .. CompileExpression(branche.condition).." then "
             for _, body in ipairs(branche.body) do
-                workflow(body)
+                output = output .. ____workflow(body)
             end
         end
         if line.elseBody then
-            codeoutput = codeoutput .. " else " 
+            output = output .. " else " 
             for _, body in ipairs(line.elseBody) do
-                workflow(body)
+                output = output .. ____workflow(body)
             end
         end
-        codeoutput = codeoutput .. " end;"
+        output = output .. " end;"
     elseif opcode == "BreakStatement" then
-        codeoutput = codeoutput .. "break;"
+        output = output .. "break;"
     elseif opcode == "ContinueStatement" then
-        codeoutput = codeoutput .. "continue;"
+        output = output .. "continue;"
     end
+    return output
 end
 if Config.Debug then
     print("Chaning Langs to Diamond to Luau...")
 end
 for _,line in pairs(ast) do
-    workflow(line)
+    codeoutput = codeoutput.. ____workflow(line)
 end
 if Config.Debug then
     print((Config.ExportToLua ~= nil and "Exporting File" or "Runing").." the Luau Exported Version...")
@@ -365,7 +406,7 @@ if Config.Debug then
 end
 if Config.ExportToLua ~= nil then
     local file = luteapi_fs.open(Config.ExportToLua, "w")
-    luteapi_fs.write(file,"luteapi_io = require('@lute/io')luteapi_luau=require('@lute/luau')stdapi_json=require('@std/json')luteapi_process=require('@lute/process')luteapi_net=require('@lute/net/client')luteapi_fs=require('@lute/fs'); "..codeoutput)
+    luteapi_fs.write(file,"luteapi_server = require('@lute/net/server')luteapi_io = require('@lute/io')luteapi_luau=require('@lute/luau')stdapi_json=require('@std/json')luteapi_process=require('@lute/process')luteapi_net=require('@lute/net/client')luteapi_fs=require('@lute/fs'); "..codeoutput)
     luteapi_fs.close(file)
 else
     local bytecode = luteapi_luau.compile(codeoutput)
