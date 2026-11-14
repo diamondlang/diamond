@@ -316,14 +316,25 @@ end
         if callname == "import" then
             local id = tostring(math.random(100000, 999999))
             output = output.."function v" .. id .. "()" 
-            local file = luteapi_fs.open(line.expression.arguments[1].value,"r")
+            local filepath = line.expression.arguments[1].value..".dd"
+            if not luteapi_fs.exists(filepath) then
+                filepath = luteapi_process.cwd().."\\packages\\"..line.expression.arguments[1].value..".dd"
+            end
+            if filepath == "" then
+                error("Faild to Find File: "..line.expression.arguments[1].value)
+            end
+            local file = luteapi_fs.open(filepath,"r")
             local importsource = luteapi_fs.read(file)
             luteapi_fs.close(file)
             for _, body in ipairs(Compiler.Parse(importsource)) do
                 output = output .. ____workflow(body)
             end
-            output = output .. "end " .. "v"..id.."()"
-            return
+            output = output .. "end " 
+            if line.expression.arguments[2] then
+                output = output .. line.expression.arguments[2].value .. "="
+            end
+            output = output .. "v"..id.."()"
+            return output
         end
         output = output..callname..(line.expression.callee.property ~= nil and "."..line.expression.callee.property or "").."("
         for index,arg in pairs(line.expression.arguments) do
