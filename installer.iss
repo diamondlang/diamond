@@ -3,7 +3,7 @@
 ; Non-commercial use only.
 
 #define MyAppName "Diamond"
-#define MyAppVersion "1.1.2"
+#define MyAppVersion "1.2"
 #define MyAppPublisher "MenConfig, brokiedarwin"
 #define MyAppURL "https://diamondlang.github.io"
 #define MyAppExeName "diamond.exe"
@@ -39,7 +39,7 @@ LicenseFile=C:\Users\japekpl\Desktop\New folder (9)\New folder\LICENSE.txt
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
 OutputDir=C:\Users\japekpl\Desktop\New folder (9)\dist
-OutputBaseFilename=mysetup
+OutputBaseFilename=DiamondInstaller
 SetupIconFile=C:\Users\japekpl\Desktop\New folder (9)\Diamondicon.ico
 SolidCompression=yes
 WizardStyle=modern dynamic
@@ -49,11 +49,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 
 [Files]
-Source: "C:\Users\japekpl\Desktop\New folder (9)\New folder\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\japekpl\Desktop\New folder (9)\New folder\complier.lua"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\japekpl\Desktop\New folder (9)\New folder\lute.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\japekpl\Desktop\New folder (9)\New folder\main.luau"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\japekpl\Desktop\New folder (9)\New folder\packages\*"; DestDir: "{app}\packages"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\japekpl\Desktop\New folder (9)\New folder\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files.
 
 [Registry]
