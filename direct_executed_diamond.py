@@ -10,6 +10,7 @@ import subprocess
 config = {
     "Input": None,
     "Debug": False,
+    "Robloxluau": False,
     "ExportToLuau": None
 }
 
@@ -44,6 +45,9 @@ while i < len(args):
 
     if value == "--debug":
         config["Debug"] = True
+
+    elif value == "--robloxluau":
+            config["Robloxluau"] = True
 
     elif value == "--exporttoluau":
 
