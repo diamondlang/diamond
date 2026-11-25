@@ -13,6 +13,7 @@ local argsofapp = {...}
 local Config = {
     Debug = false,
     ExportToLua = nil,
+    Robloxluau = false,
     Input = argsofapp[2]
 }
 
@@ -23,6 +24,9 @@ while i <= #argsofapp do
 
     if value == "--debug" then
         Config.Debug = true
+
+    elseif value == "--robloxluau" then
+        Config.Robloxluau = true
 
     elseif value == "--exporttoluau" then
         Config.ExportToLua = argsofapp[i + 1]
@@ -43,6 +47,7 @@ if not Config.Input then
     print("diamond <diamond file path> ")
     print("diamond <diamond file path> --debug > debuging the code ____workflow")
     print("diamond <diamond file path> --exporttoluau > export to luau code without runing")
+    print("diamond <diamond file path> --robloxluau > chaning the system to worked in roblox system")
     return
 end
 
@@ -126,7 +131,7 @@ local function CompileExpression(expr)
         end
 
         return "(" .. CompileExpression(expr.left)
-            .. op ..
+            .. " " .. op .. " " ..
             CompileExpression(expr.right) .. ")"
 
     elseif t == "UnaryExpression" then
@@ -242,6 +247,9 @@ elseif t == "MethodCallExpression" then
     error("Unknown expression type: " .. tostring(t))
 end
 local codeoutput = "pi=math.pi;function thread(...)return spawn(...)end function tfind(...)return table.find(...)end function append(...)table.append(...)end function insert(...)table.insert(...)end function pn(...)print(...)end function wn(...)warn(...)end function fo(...)info(...)end function er(...)error(...)end function len(item)return #item end function rad(deg)return math.rad(deg)end function deg(rad)return math.deg(rad)end function cos(deg)return math.cos(math.rad(deg))end function sin(deg)return math.sin(math.rad(deg))end function readfile(filepath)local file=luteapi_fs.open(filepath,'r')local code=luteapi_fs.read(file)luteapi_fs.close(file)return code end function writefile(filepath,code)local file=luteapi_fs.open(filepath,'w')luteapi_fs.write(file,code)luteapi_fs.close(file)end function request(...)return luteapi_net.request(...)end function runcmd(...)return luteapi_process.system(...)end function json_decode(...)return stdapi_json.deserialize(...)end function json_encode(tab)return stdapi_json.serialize(tab, true)end function tostr(...)return tostring(...)end function tonum(...)return tonumber(...)end function floor(...)return math.floor(...)end function round(...)return math.round(...)end function clamp(...)return math.clamp(...)end function runtest(...)return pcall(...)end function addpn(...)luteapi_io.write(...)end function input(str)luteapi_io.write(str or '')return luteapi_io.read()end function runluau(...)return luteapi_luau.load(luteapi_luau.compile(...),'@Luau')() end function wait(mis)local start=os.clock()while os.clock()-start<(mis/1000)do end end function unixtime()return os.time()+(os.clock()%1)end\n"
+if Config.Robloxluau then
+    codeoutput = "pi=math.pi;function thread(...)return spawn(...)end function tfind(...)return table.find(...)end function append(...)table.append(...)end function insert(...)table.insert(...)end function pn(...)print(...)end function wn(...)warn(...)end function fo(...)info(...)end function er(...)error(...)end function len(item)return #item end function rad(deg)return math.rad(deg)end function deg(rad)return math.deg(rad)end function cos(deg)return math.cos(math.rad(deg))end function sin(deg)return math.sin(math.rad(deg))end function tostr(...)return tostring(...)end function tonum(...)return tonumber(...)end function floor(...)return math.floor(...)end function round(...)return math.round(...)end function clamp(...)return math.clamp(...)end function runtest(...)return pcall(...)end function runluau(...)return loadstring(...)() end\n"
+end
 function ____workflow(line) 
     local output = ""
     local opcode = line.type
@@ -375,6 +383,18 @@ end
             output = output .. ____workflow(body)
         end
         output = output .. " end;"
+    elseif opcode == "GenericForStatement" then
+        output = output
+            .. "for " .. line.names[1]
+            .. "," .. line.names[2]
+            .. " in " .. CompileExpression(line.iterators[1])
+            .. " do "
+
+        for _, body in ipairs(line.body) do
+            output = output .. ____workflow(body)
+        end
+
+        output = output .. " end;"
     elseif opcode == "WhileStatement" then
         output = output .. "while " .. CompileExpression(line.condition) .. " do "
         for _, body in ipairs(line.body) do
@@ -417,7 +437,11 @@ if Config.Debug then
 end
 if Config.ExportToLua ~= nil then
     local file = luteapi_fs.open(Config.ExportToLua, "w")
-    luteapi_fs.write(file,"luteapi_server = require('@lute/net/server')luteapi_io = require('@lute/io')luteapi_luau=require('@lute/luau')stdapi_json=require('@std/json')luteapi_process=require('@lute/process')luteapi_net=require('@lute/net/client')luteapi_fs=require('@lute/fs'); "..codeoutput)
+    local addons = "luteapi_server = require('@lute/net/server')luteapi_io = require('@lute/io')luteapi_luau=require('@lute/luau')stdapi_json=require('@std/json')luteapi_process=require('@lute/process')luteapi_net=require('@lute/net/client')luteapi_fs=require('@lute/fs'); "
+    if Config.Robloxluau then
+        addons = ""
+    end
+    luteapi_fs.write(file,addons..codeoutput)
     luteapi_fs.close(file)
 else
     local bytecode = luteapi_luau.compile(codeoutput)
