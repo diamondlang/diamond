@@ -320,6 +320,18 @@ function ____workflow(line)
     end
 end
     elseif opcode == "CallStatement" then
+        if line.expression.type == "MethodCallExpression" then
+            output = output..CompileExpression(line.expression.receiver)..":"..line.expression.method.."("
+            for index,arg in pairs(line.expression.arguments) do
+                if index ~= 1 then
+                    output = output..","
+                end
+                output = output .. CompileExpression(arg)
+            end
+            output = output..");"
+            return output
+        end
+
         local callname = line.expression.callee.name or line.expression.callee.object.name 
         if callname == "import" then
             local id = tostring(math.random(100000, 999999))
